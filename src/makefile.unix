@@ -1,34 +1,27 @@
 # Copyright (c) 2009-2010 Satoshi Nakamoto
 # Distributed under the MIT/X11 software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
-# :=0 --> UPnP support turned off by default at runtime
-# :=1 --> UPnP support turned on by default at runtime
-# :=- --> No UPnP support - miniupnp not required
 USE_UPNP:=0
 
-# :=1 --> Enable IPv6 support
-# :=0 --> Disable IPv6 support
-USE_IPV6:=1
+DEFS=-DUSE_IPV6 -DBOOST_SPIRIT_THREADSAFE
 
-LINK:=$(CXX)
-
-DEFS=-DBOOST_SPIRIT_THREADSAFE -D_FILE_OFFSET_BITS=64
 
 DEFS += $(addprefix -I,$(CURDIR) $(CURDIR)/obj $(BOOST_INCLUDE_PATH) $(BDB_INCLUDE_PATH) $(OPENSSL_INCLUDE_PATH))
 LIBS = $(addprefix -L,$(BOOST_LIB_PATH) $(BDB_LIB_PATH) $(OPENSSL_LIB_PATH))
+
 
 TESTDEFS = -DTEST_DATA_DIR=$(abspath test/data)
 
 LMODE = dynamic
 LMODE2 = dynamic
 ifdef STATIC
-	LMODE = static
-	ifeq (${STATIC}, all)
-		LMODE2 = static
-	endif
+    LMODE = static
+    ifeq (${STATIC}, all)
+        LMODE2 = static
+    endif
 else
-	TESTDEFS += -DBOOST_TEST_DYN_LINK
+    TESTDEFS += -DBOOST_TEST_DYN_LINK
 endif
 
 # for boost 1.37, add -mt to the boost libraries
@@ -192,7 +185,7 @@ obj/%.o: %.c
 	  rm -f $(@:%.o=%.d)
 
 zingcoind: $(OBJS:obj/%=obj/%)
-	$(LINK) $(xCXXFLAGS) -o $@ $^ $(xLDFLAGS) $(LIBS)
+    $(CXX) $(xCXXFLAGS) -o $@ $^ $(xLDFLAGS) $(LIBS)
 
 TESTOBJS := $(patsubst test/%.cpp,obj-test/%.o,$(wildcard test/*.cpp))
 
@@ -204,7 +197,7 @@ obj-test/%.o: test/%.cpp
 	  rm -f $(@:%.o=%.d)
 
 test_zingcoin: $(TESTOBJS) $(filter-out obj/init.o,$(OBJS:obj/%=obj/%))
-	$(LINK) $(xCXXFLAGS) -o $@ $(LIBPATHS) $^ $(TESTLIBS) $(xLDFLAGS) $(LIBS)
+	$(CXX) $(xCXXFLAGS) -o $@ $(LIBPATHS) $^ $(TESTLIBS) $(xLDFLAGS) $(LIBS)
 
 clean:
 	-rm -f zingcoind test_zingcoin
